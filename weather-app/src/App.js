@@ -1,26 +1,53 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {Component} from 'react';
 import './App.css';
+import axios from "axios"
+import WeatherForm from "./Components/WeatherForm"
+import Weather from "./Components/Weather"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+class App extends Component{
+  constructor(){
+    super()
+
+    this.state={
+      weather: null,
+      init: true,
+      inputFormValue: ''
+    }
+    this.handleInputChange = this.handleInputChange.bind(this)
+    this.onFormSubmit=this.onFormSubmit.bind(this)
+  }
+
+  handleInputChange(e){
+    this.setState({
+      inputFormValue:e.target.value
+    })
+  }
+  async onFormSubmit(e){
+    // do not refresh page
+    e.preventDefault()
+    // when form is submitted, grab weather API
+    const zip = this.state.inputFormValue
+    const fetchWeather = await axios(`http://api.openweathermap.org/data/2.5/weather?zip=${zip},us&units=imperial&APPID=6926dffc075354ac71e2996e9bbbdc98`)
+    console.log(fetchWeather)
+
+    this.setState({
+      weather: fetchWeather.data,
+      init:false,
+      inputFormValue: ''
+    })
+  }
+  render(){
+    return(
+      <div className="App">
+        <h1> Weather App</h1>
+        <WeatherForm handleInputChange={this.handleInputChange} onFormSubmit={this.onFormSubmit} />
+
+        <Weather {...this.state.weather} />
+
+      </div>
+    );
+  }
 }
 
 export default App;
